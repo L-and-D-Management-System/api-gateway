@@ -1,0 +1,52 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: ld-gateway
+spec:
+  gatewayClassName: kgateway
+  listeners:
+    - name: http
+      protocol: HTTP
+      port: 80
+      allowedRoutes:
+        namespaces:
+          from: Same
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: ld-route
+spec:
+  parentRefs:
+    - name: ld-gateway
+  rules:
+    - matches: [{path: {type: PathPrefix, value: /auth}}]
+      filters: [{type: URLRewrite, urlRewrite: {path: {type: ReplacePrefixMatch, replacePrefixMatch: /}}}]
+      backendRefs: [{name: auth-svc, port: 3001}]
+    - matches: [{path: {type: PathPrefix, value: /users}}]
+      filters: [{type: URLRewrite, urlRewrite: {path: {type: ReplacePrefixMatch, replacePrefixMatch: /}}}]
+      backendRefs: [{name: user-svc, port: 3002}]
+    - matches: [{path: {type: PathPrefix, value: /trainings}}]
+      filters: [{type: URLRewrite, urlRewrite: {path: {type: ReplacePrefixMatch, replacePrefixMatch: /}}}]
+      backendRefs: [{name: training-svc, port: 3003}]
+    - matches: [{path: {type: PathPrefix, value: /attendance}}]
+      filters: [{type: URLRewrite, urlRewrite: {path: {type: ReplacePrefixMatch, replacePrefixMatch: /}}}]
+      backendRefs: [{name: attendance-svc, port: 3004}]
+    - matches: [{path: {type: PathPrefix, value: /assets}}]
+      backendRefs: [{name: frontend-svc, port: 80}]
+    - matches: [{path: {type: PathPrefix, value: /}}]
+      filters: [{type: URLRewrite, urlRewrite: {path: {type: ReplaceFullPath, replaceFullPath: /}}}]
+      backendRefs: [{name: frontend-svc, port: 80}]
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kgateway-external-svc
+spec:
+  selector:
+    gateway.networking.k8s.io/gateway-name: ld-gateway
+  ports:
+    - port: 80
+      targetPort: 80
+      nodePort: {{ .Values.nodePort | default 30080 }}
+  type: NodePort
