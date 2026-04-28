@@ -1,0 +1,21 @@
+name: CI/CD
+ 
+on:
+  pull_request:
+    branches: [master]
+  push:
+    branches: [master]
+permissions:
+  contents: read
+  packages: write
+ 
+jobs:
+  pipeline:
+    uses: PrintNow-Dev/PrintNow/.github/workflows/backend.yml@dev
+ 
+    with:
+      service: "api-gateway"
+      image: "ghcr.io/l-and-d-management-system/api-gateway"
+      trigger: ${{ github.event_name }}
+ 
+    secrets: inherit
