@@ -16,7 +16,7 @@ jobs:
 
     with:
       service: "api-gateway"
-      image: ghcr.io/l-and-d-management-system/api-gateway
+      image: ghcr.io/l-and-d-management-system/api-gateway-lnd
       trigger: ${{ github.event_name }}
 
     secrets: inherit
