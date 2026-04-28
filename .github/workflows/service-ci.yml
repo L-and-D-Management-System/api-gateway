@@ -11,7 +11,7 @@ permissions:
  
 jobs:
   pipeline:
-    uses: PrintNow-Dev/PrintNow/.github/workflows/backend.yml@dev
+    uses: L-and-D-Management-System/l-and-d-main/.github/workflows/backend.yml@dev
  
     with:
       service: "api-gateway"
